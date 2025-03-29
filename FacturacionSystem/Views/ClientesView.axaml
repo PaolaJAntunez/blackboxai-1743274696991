@@ -1,0 +1,23 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="FacturacionSystem.Views.ClientesView"
+        Title="Gestión de Clientes"
+        Width="800" Height="600">
+    <DockPanel Margin="10">
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,10,0,0">
+            <Button Content="Agregar" Command="{Binding AgregarClienteCommand}"/>
+            <Button Content="Editar" Command="{Binding EditarClienteCommand}" CommandParameter="{Binding #ClientesDataGrid.SelectedItem}"/>
+            <Button Content="Eliminar" Command="{Binding EliminarClienteCommand}" CommandParameter="{Binding #ClientesDataGrid.SelectedItem}"/>
+        </StackPanel>
+        
+        <DataGrid x:Name="ClientesDataGrid" Items="{Binding Clientes}" AutoGenerateColumns="False" SelectionMode="Single">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="Auto" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="*"/>
+                <DataGridTextColumn Header="Apellido" Binding="{Binding Apellido}" Width="*"/>
+                <DataGridTextColumn Header="Teléfono" Binding="{Binding Telefono}" Width="*"/>
+                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</Window>
