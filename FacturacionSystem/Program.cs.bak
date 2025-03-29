@@ -1,0 +1,639 @@
+﻿using System;
+using System.Linq;
+using FacturacionSystem.Models;
+using FacturacionSystem.Repositories;
+using FacturacionSystem.DataAccess;
+
+namespace FacturacionSystem
+{
+    class Program
+    {
+        private static ClienteRepository _clienteRepo = new ClienteRepository();
+        private static ProductoRepository _productoRepo = new ProductoRepository();
+        private static FacturaRepository _facturaRepo = new FacturaRepository();
+
+        static void Main(string[] args)
+        {
+            DatabaseHelper.InitializeDatabase();
+            InitializeSampleData();
+            
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("SISTEMA DE FACTURACIÓN");
+                Console.WriteLine("======================");
+                Console.WriteLine("1. Gestión de Clientes");
+                Console.WriteLine("2. Gestión de Productos");
+                Console.WriteLine("3. Facturación");
+                Console.WriteLine("4. Reportes");
+                Console.WriteLine("5. Salir");
+                Console.Write("\nSeleccione una opción: ");
+
+                var opcion = Console.ReadLine();
+
+                switch (opcion)
+                {
+                    case "1":
+                        MenuClientes();
+                        break;
+                    case "2":
+                        MenuProductos();
+                        break;
+                    case "3":
+                        MenuFacturacion();
+                        break;
+                    case "4":
+                        MenuReportes();
+                        break;
+                    case "5":
+                        return;
+                    default:
+                        Console.WriteLine("Opción no válida");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
+
+        static void MenuClientes()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("GESTIÓN DE CLIENTES");
+                Console.WriteLine("===================");
+                Console.WriteLine("1. Listar Clientes");
+                Console.WriteLine("2. Agregar Cliente");
+                Console.WriteLine("3. Editar Cliente");
+                Console.WriteLine("4. Eliminar Cliente");
+                Console.WriteLine("5. Volver al menú principal");
+                Console.Write("\nSeleccione una opción: ");
+
+                var opcion = Console.ReadLine();
+
+                switch (opcion)
+                {
+                    case "1":
+                        ListarClientes();
+                        break;
+                    case "2":
+                        AgregarCliente();
+                        break;
+                    case "3":
+                        EditarCliente();
+                        break;
+                    case "4":
+                        EliminarCliente();
+                        break;
+                    case "5":
+                        return;
+                    default:
+                        Console.WriteLine("Opción no válida");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
+
+        static void ListarClientes()
+        {
+            Console.Clear();
+            Console.WriteLine("LISTADO DE CLIENTES");
+            Console.WriteLine("===================");
+
+            var clientes = _clienteRepo.GetAll();
+            
+            if (!clientes.Any())
+            {
+                Console.WriteLine("\nNo hay clientes registrados.");
+            }
+            else
+            {
+                foreach (var cliente in clientes)
+                {
+                    Console.WriteLine($"\nID: {cliente.Id}");
+                    Console.WriteLine($"Nombre: {cliente.Nombre}");
+                    Console.WriteLine($"RTN: {cliente.RTN ?? "N/A"}");
+                    Console.WriteLine($"Teléfono: {cliente.Telefono ?? "N/A"}");
+                    Console.WriteLine($"Email: {cliente.Email ?? "N/A"}");
+                    Console.WriteLine($"Fecha Registro: {cliente.FechaRegistro:d}");
+                    Console.WriteLine("-------------------");
+                }
+            }
+            
+            Console.WriteLine("\nPresione cualquier tecla para continuar...");
+            Console.ReadKey();
+        }
+
+        static void AgregarCliente()
+        {
+            Console.Clear();
+            Console.WriteLine("AGREGAR NUEVO CLIENTE");
+            Console.WriteLine("=====================");
+
+            var cliente = new Cliente();
+            
+            Console.Write("Nombre: ");
+            cliente.Nombre = Console.ReadLine();
+            
+            Console.Write("RTN (opcional): ");
+            cliente.RTN = Console.ReadLine();
+            
+            Console.Write("Dirección (opcional): ");
+            cliente.Direccion = Console.ReadLine();
+            
+            Console.Write("Teléfono (opcional): ");
+            cliente.Telefono = Console.ReadLine();
+            
+            Console.Write("Email (opcional): ");
+            cliente.Email = Console.ReadLine();
+
+            _clienteRepo.Create(cliente);
+            Console.WriteLine("\nCliente agregado exitosamente!");
+            Console.ReadKey();
+        }
+
+        static void InitializeSampleData()
+        {
+            // Sample clients
+            if (!_clienteRepo.GetAll().Any())
+            {
+                _clienteRepo.Create(new Cliente { 
+                    Nombre = "Cliente General", 
+                    RTN = "0801199000123" 
+                });
+            }
+
+            // Sample products
+            if (!_productoRepo.GetAll().Any())
+            {
+                _productoRepo.Create(new Producto {
+                    Nombre = "Producto 1",
+                    Precio = 100.50m
+                });
+                
+                _productoRepo.Create(new Producto {
+                    Nombre = "Producto 2",
+                    Precio = 200.75m,
+                    IVA = 0.18m
+                });
+            }
+        }
+
+        static void MenuProductos()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("GESTIÓN DE PRODUCTOS");
+                Console.WriteLine("====================");
+                Console.WriteLine("1. Listar Productos");
+                Console.WriteLine("2. Agregar Producto");
+                Console.WriteLine("3. Editar Producto");
+                Console.WriteLine("4. Eliminar Producto");
+                Console.WriteLine("5. Volver al menú principal");
+                Console.Write("\nSeleccione una opción: ");
+
+                var opcion = Console.ReadLine();
+
+                switch (opcion)
+                {
+                    case "1":
+                        ListarProductos();
+                        break;
+                    case "2":
+                        AgregarProducto();
+                        break;
+                    case "3":
+                        EditarProducto();
+                        break;
+                    case "4":
+                        EliminarProducto();
+                        break;
+                    case "5":
+                        return;
+                    default:
+                        Console.WriteLine("Opción no válida");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
+
+        static void ListarProductos()
+        {
+            Console.Clear();
+            Console.WriteLine("LISTADO DE PRODUCTOS");
+            Console.WriteLine("====================");
+
+            var productos = _productoRepo.GetAll();
+            
+            if (!productos.Any())
+            {
+                Console.WriteLine("\nNo hay productos registrados.");
+            }
+            else
+            {
+                foreach (var producto in productos)
+                {
+                    Console.WriteLine($"\nID: {producto.Id}");
+                    Console.WriteLine($"Nombre: {producto.Nombre}");
+                    Console.WriteLine($"Precio: {producto.Precio:C}");
+                    Console.WriteLine($"IVA: {producto.IVA:P0}");
+                    Console.WriteLine($"Estado: {(producto.Activo ? "Activo" : "Inactivo")}");
+                    Console.WriteLine("-------------------");
+                }
+            }
+            
+            Console.WriteLine("\nPresione cualquier tecla para continuar...");
+            Console.ReadKey();
+        }
+
+        static void AgregarProducto()
+        {
+            Console.Clear();
+            Console.WriteLine("AGREGAR NUEVO PRODUCTO");
+            Console.WriteLine("======================");
+
+            var producto = new Producto();
+            
+            Console.Write("Nombre: ");
+            producto.Nombre = Console.ReadLine();
+            
+            Console.Write("Descripción (opcional): ");
+            producto.Descripcion = Console.ReadLine();
+            
+            Console.Write("Precio: ");
+            decimal precio;
+            while (!decimal.TryParse(Console.ReadLine(), out precio))
+            {
+                Console.WriteLine("Ingrese un valor numérico válido");
+                Console.Write("Precio: ");
+            }
+            producto.Precio = precio;
+            
+            Console.Write("IVA (15% por defecto): ");
+            string ivaInput = Console.ReadLine();
+            producto.IVA = string.IsNullOrEmpty(ivaInput) ? 0.15m : decimal.Parse(ivaInput);
+
+            _productoRepo.Create(producto);
+            Console.WriteLine("\nProducto agregado exitosamente!");
+            Console.ReadKey();
+        }
+
+        static void EditarCliente()
+        {
+            Console.Clear();
+            Console.WriteLine("EDITAR CLIENTE");
+            Console.WriteLine("==============");
+            
+            ListarClientes();
+            Console.Write("\nIngrese el ID del cliente a editar: ");
+            
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("ID inválido");
+                Console.ReadKey();
+                return;
+            }
+
+            var cliente = _clienteRepo.GetById(id);
+            if (cliente == null)
+            {
+                Console.WriteLine("Cliente no encontrado");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.WriteLine($"\nEditando cliente: {cliente.Nombre}");
+            Console.WriteLine("Deje en blanco para mantener el valor actual");
+            
+            Console.Write($"Nombre ({cliente.Nombre}): ");
+            var nombre = Console.ReadLine();
+            if (!string.IsNullOrEmpty(nombre)) cliente.Nombre = nombre;
+            
+            Console.Write($"RTN ({cliente.RTN ?? "N/A"}): ");
+            var rtn = Console.ReadLine();
+            cliente.RTN = string.IsNullOrEmpty(rtn) ? cliente.RTN : rtn;
+            
+            Console.Write($"Teléfono ({cliente.Telefono ?? "N/A"}): ");
+            var telefono = Console.ReadLine();
+            cliente.Telefono = string.IsNullOrEmpty(telefono) ? cliente.Telefono : telefono;
+            
+            Console.Write($"Email ({cliente.Email ?? "N/A"}): ");
+            var email = Console.ReadLine();
+            cliente.Email = string.IsNullOrEmpty(email) ? cliente.Email : email;
+
+            _clienteRepo.Update(cliente);
+            Console.WriteLine("\nCliente actualizado exitosamente!");
+            Console.ReadKey();
+        }
+
+        static void EliminarCliente()
+        {
+            Console.Clear();
+            Console.WriteLine("ELIMINAR CLIENTE");
+            Console.WriteLine("================");
+            
+            ListarClientes();
+            Console.Write("\nIngrese el ID del cliente a eliminar: ");
+            
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("ID inválido");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.Write("¿Está seguro que desea eliminar este cliente? (s/n): ");
+            if (Console.ReadLine().ToLower() == "s")
+            {
+                _clienteRepo.Delete(id);
+                Console.WriteLine("Cliente eliminado exitosamente!");
+            }
+            else
+            {
+                Console.WriteLine("Operación cancelada");
+            }
+            
+            Console.ReadKey();
+        }
+
+        static void MenuFacturacion()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("FACTURACIÓN");
+                Console.WriteLine("===========");
+                Console.WriteLine("1. Crear Factura");
+                Console.WriteLine("2. Ver Facturas");
+                Console.WriteLine("3. Volver al menú principal");
+                Console.Write("\nSeleccione una opción: ");
+
+                var opcion = Console.ReadLine();
+
+                switch (opcion)
+                {
+                    case "1":
+                        CrearFactura();
+                        break;
+                    case "2":
+                        VerFacturas();
+                        break;
+                    case "3":
+                        return;
+                    default:
+                        Console.WriteLine("Opción no válida");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
+
+        static void EditarProducto()
+        {
+            Console.Clear();
+            Console.WriteLine("EDITAR PRODUCTO");
+            Console.WriteLine("==============");
+            
+            ListarProductos();
+            Console.Write("\nIngrese el ID del producto a editar: ");
+            
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("ID inválido");
+                Console.ReadKey();
+                return;
+            }
+
+            var producto = _productoRepo.GetById(id);
+            if (producto == null)
+            {
+                Console.WriteLine("Producto no encontrado");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.WriteLine($"\nEditando producto: {producto.Nombre}");
+            Console.WriteLine("Deje en blanco para mantener el valor actual");
+            
+            Console.Write($"Nombre ({producto.Nombre}): ");
+            var nombre = Console.ReadLine();
+            if (!string.IsNullOrEmpty(nombre)) producto.Nombre = nombre;
+            
+            Console.Write($"Descripción ({producto.Descripcion ?? "N/A"}): ");
+            var descripcion = Console.ReadLine();
+            producto.Descripcion = string.IsNullOrEmpty(descripcion) ? producto.Descripcion : descripcion;
+            
+            Console.Write($"Precio ({producto.Precio:C}): ");
+            var precioInput = Console.ReadLine();
+            if (!string.IsNullOrEmpty(precioInput)) 
+                producto.Precio = decimal.Parse(precioInput);
+            
+            Console.Write($"IVA ({producto.IVA:P0}): ");
+            var ivaInput = Console.ReadLine();
+            if (!string.IsNullOrEmpty(ivaInput))
+                producto.IVA = decimal.Parse(ivaInput);
+
+            _productoRepo.Update(producto);
+            Console.WriteLine("\nProducto actualizado exitosamente!");
+            Console.ReadKey();
+        }
+
+        static void EliminarProducto()
+        {
+            Console.Clear();
+            Console.WriteLine("ELIMINAR PRODUCTO");
+            Console.WriteLine("================");
+            
+            ListarProductos();
+            Console.Write("\nIngrese el ID del producto a eliminar: ");
+            
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("ID inválido");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.Write("¿Está seguro que desea eliminar este producto? (s/n): ");
+            if (Console.ReadLine().ToLower() == "s")
+            {
+                _productoRepo.Delete(id);
+                Console.WriteLine("Producto eliminado exitosamente!");
+            }
+            else
+            {
+                Console.WriteLine("Operación cancelada");
+            }
+            
+            Console.ReadKey();
+        }
+
+        static void CrearFactura()
+        {
+            Console.Clear();
+            Console.WriteLine("NUEVA FACTURA");
+            Console.WriteLine("=============");
+            
+            var factura = new Factura
+            {
+                NumeroFactura = _facturaRepo.GenerateNextInvoiceNumber(),
+                Fecha = DateTime.Now
+            };
+
+            // Seleccionar cliente
+            ListarClientes();
+            Console.Write("\nIngrese el ID del cliente: ");
+            if (!int.TryParse(Console.ReadLine(), out int clienteId))
+            {
+                Console.WriteLine("ID inválido");
+                Console.ReadKey();
+                return;
+            }
+
+            factura.ClienteId = clienteId;
+            factura.Cliente = _clienteRepo.GetById(clienteId);
+            
+            if (factura.Cliente == null)
+            {
+                Console.WriteLine("Cliente no encontrado");
+                Console.ReadKey();
+                return;
+            }
+
+            // Agregar productos
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine($"FACTURA: {factura.NumeroFactura}");
+                Console.WriteLine($"CLIENTE: {factura.Cliente.Nombre}");
+                Console.WriteLine("=================================");
+                
+                ListarProductos();
+                Console.WriteLine("\n0. Finalizar factura");
+                Console.Write("\nIngrese el ID del producto a agregar: ");
+                
+                var input = Console.ReadLine();
+                if (input == "0") break;
+                
+                if (!int.TryParse(input, out int productoId))
+                {
+                    Console.WriteLine("ID inválido");
+                    Console.ReadKey();
+                    continue;
+                }
+
+                var producto = _productoRepo.GetById(productoId);
+                if (producto == null)
+                {
+                    Console.WriteLine("Producto no encontrado");
+                    Console.ReadKey();
+                    continue;
+                }
+
+                Console.Write($"Cantidad de '{producto.Nombre}': ");
+                if (!int.TryParse(Console.ReadLine(), out int cantidad) || cantidad <= 0)
+                {
+                    Console.WriteLine("Cantidad inválida");
+                    Console.ReadKey();
+                    continue;
+                }
+
+                var detalle = new DetalleFactura
+                {
+                    ProductoId = producto.Id,
+                    Producto = producto,
+                    Cantidad = cantidad,
+                    PrecioUnitario = producto.Precio,
+                    Total = producto.Precio * cantidad
+                };
+
+                factura.Detalles.Add(detalle);
+            }
+
+            if (!factura.Detalles.Any())
+            {
+                Console.WriteLine("Factura vacía - no se guardará");
+                Console.ReadKey();
+                return;
+            }
+
+            factura.CalcularTotales();
+            
+            Console.WriteLine("\nRESUMEN DE FACTURA");
+            Console.WriteLine("=================");
+            Console.WriteLine($"Número: {factura.NumeroFactura}");
+            Console.WriteLine($"Cliente: {factura.Cliente.Nombre}");
+            Console.WriteLine($"Fecha: {factura.Fecha:d}");
+            Console.WriteLine("\nDETALLES:");
+            
+            foreach (var detalle in factura.Detalles)
+            {
+                Console.WriteLine($"{detalle.Producto.Nombre} - {detalle.Cantidad} x {detalle.PrecioUnitario:C} = {detalle.Total:C}");
+            }
+            
+            Console.WriteLine("\nTOTALES:");
+            Console.WriteLine($"Subtotal: {factura.Subtotal:C}");
+            Console.WriteLine($"Impuestos: {factura.Impuestos:C}");
+            Console.WriteLine($"Total: {factura.Total:C}");
+            
+            Console.Write("\n¿Confirmar factura? (s/n): ");
+            if (Console.ReadLine().ToLower() == "s")
+            {
+                _facturaRepo.Create(factura);
+                Console.WriteLine("\nFactura creada exitosamente!");
+            }
+            else
+            {
+                Console.WriteLine("\nFactura cancelada");
+            }
+            
+            Console.ReadKey();
+        }
+
+        static void VerFacturas()
+        {
+            Console.Clear();
+            Console.WriteLine("LISTADO DE FACTURAS");
+            Console.WriteLine("===================");
+
+            var facturas = _facturaRepo.GetAll();
+            
+            if (!facturas.Any())
+            {
+                Console.WriteLine("\nNo hay facturas registradas.");
+            }
+            else
+            {
+                foreach (var factura in facturas)
+                {
+                    Console.WriteLine($"\nNúmero: {factura.NumeroFactura}");
+                    Console.WriteLine($"Fecha: {factura.Fecha:d}");
+                    Console.WriteLine($"Cliente: {factura.Cliente.Nombre}");
+                    Console.WriteLine($"Total: {factura.Total:C}");
+                    Console.WriteLine("-------------------");
+                }
+            }
+            
+            Console.WriteLine("\nPresione cualquier tecla para continuar...");
+            Console.ReadKey();
+        }
+
+        static void MenuReportes()
+        {
+            Console.Clear();
+            Console.WriteLine("REPORTES");
+            Console.WriteLine("========");
+            Console.WriteLine("1. Ventas por período");
+            Console.WriteLine("2. Productos más vendidos");
+            Console.WriteLine("3. Volver al menú principal");
+            Console.Write("\nSeleccione una opción: ");
+
+            // Implementación básica - se puede expandir
+            Console.WriteLine("\nFuncionalidad de reportes en desarrollo...");
+            Console.ReadKey();
+        }
+    }
+}
