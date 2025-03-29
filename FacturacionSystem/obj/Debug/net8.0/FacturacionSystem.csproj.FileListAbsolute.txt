@@ -1,0 +1,7 @@
+/project/sandbox/user-workspace/FacturacionSystem/obj/Debug/net8.0/FacturacionSystem.csproj.AssemblyReference.cache
+/project/sandbox/user-workspace/FacturacionSystem/obj/Debug/net8.0/Avalonia/Resources.Inputs.cache
+/project/sandbox/user-workspace/FacturacionSystem/obj/Debug/net8.0/Avalonia/resources
+/project/sandbox/user-workspace/FacturacionSystem/obj/Debug/net8.0/FacturacionSystem.GeneratedMSBuildEditorConfig.editorconfig
+/project/sandbox/user-workspace/FacturacionSystem/obj/Debug/net8.0/FacturacionSystem.AssemblyInfoInputs.cache
+/project/sandbox/user-workspace/FacturacionSystem/obj/Debug/net8.0/FacturacionSystem.AssemblyInfo.cs
+/project/sandbox/user-workspace/FacturacionSystem/obj/Debug/net8.0/FacturacionSystem.csproj.CoreCompileInputs.cache
